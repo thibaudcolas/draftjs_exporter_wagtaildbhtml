@@ -1,0 +1,24 @@
+language: python
+python: 3.6
+cache:
+  pip: true
+install:
+- make init
+script:
+- python example.py
+- mv example.html index.html
+branches:
+  except:
+  - gh-pages
+deploy:
+  provider: pages
+  skip_cleanup: true
+  local_dir: build
+  github_token: "$GITHUB_TOKEN"
+  on:
+    branch: master
+notifications:
+  email: false
+env:
+  global:
+    secure: LASD4hcNPZm80MH/BWujN2qRQv+TdaKcaalEHwsXMD/OiSeH6h48YHxWd4CoDSZVAs+EP2yosW+YH7DxR83BFlTvAs7E8jsa9N3A9KmW960WSIOOpPpdFgP7/vrTJxiBKjXwQHITRtveLJfJTAbMdnjhRwTJ2Uc5a5S0I9GkNnEjVq/525NDoGEshWLGErOVCLMxGaXE2BbVH7TnewoclIPB61HbSGQ9ErSTAQvL1QKlb0EGO/N5PbZQ6AMbEMdvf9NUBlqp2zlkKM2tauc4A2qiMdYj61ZkrAZAmvu803QnzEzkNvh6hFBkQaX+wcQGdh1Gj8whMfYcocU6wCZbkzuR1oUoKqZ1P4IFnRMpfjlVsqB8pNnP+PH4lJzT7XLaAyvTDI4s4mZ82WCSuqpHrf37KFnwjbKjh5RxwPmltuupZXfoJ//8kS3Kub02bC5mujXTL/X3y6fr7+rKLcj3nHGEu38RyiJgoULokP/PSS+ynAVPsDIVMndz/iM6GenI9iw1XCaMirm+lYwYU/wqCe1GSXH6ngNqNONAPHAZXzfoeMn87ggb5LZrIeFn3z0OO3iS7OVplZbJReeYgL0k4NjDZuv/QekR1uA/WAbGws19zUOYJUpZ6AlUg/RvPaQvW/d5MLeAEIH434fWhy03utDI80yQUfxrdHrpi0T9keQ=
