@@ -108,7 +108,6 @@ config = {
         ENTITY_TYPES.DOCUMENT: Document,
         ENTITY_TYPES.HORIZONTAL_RULE: lambda props: DOM.create_element('hr'),
         ENTITY_TYPES.EMBED: Embed,
-        # TODO
         ENTITY_TYPES.FALLBACK: EntityFallback,
     },
     'composite_decorators': [
