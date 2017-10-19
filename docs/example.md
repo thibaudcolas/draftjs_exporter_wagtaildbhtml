@@ -8,36 +8,39 @@
     internal link text
    </a>
    ,
-   <a>
+   <a href="http://example.com">
     external link text
    </a>
    ,
-   <a>
+   <a href="mailto:test@example.com">
     email link text
    </a>
   </p>
   <p>
    Paragraph text
-   <strong>
+   <b>
     bold
-   </strong>
+   </b>
    ,
-   <em>
+   <i>
     italic
-   </em>
+   </i>
    ,
-   <strong>
-    <em>
+   <b>
+    <i>
      bold italic
-    </em>
-   </strong>
+    </i>
+   </b>
    ,
-   <strong>
-    <em>
+   <b>
+    <i>
      italic bold
-    </em>
-   </strong>
+    </i>
+   </b>
   </p>
+  <h2>
+   Heading 2
+  </h2>
   <h3>
    Heading 3
   </h3>
