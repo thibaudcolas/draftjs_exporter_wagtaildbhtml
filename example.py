@@ -11,7 +11,7 @@ from pstats import Stats
 from bs4 import BeautifulSoup
 
 # draftjs_exporter provides default configurations and predefined constants for reuse.
-from draftjs_exporter.constants import BLOCK_TYPES, ENTITY_TYPES
+from draftjs_exporter.constants import BLOCK_TYPES, ENTITY_TYPES, INLINE_STYLES
 from draftjs_exporter.defaults import BLOCK_MAP, STYLE_MAP
 from draftjs_exporter.dom import DOM
 from draftjs_exporter.html import HTML
@@ -42,7 +42,7 @@ def Document(props):
 
 def Link(props):
     """
-    <a linktype="page" id="42">hello world</a>
+    <a linktype="page" id="42">internal page link</a>
     """
     link_type = props.get('linkType', '')
     link_props = {}
@@ -51,7 +51,7 @@ def Link(props):
         link_props['linktype'] = link_type
         link_props['id'] = props.get('id')
     else:
-        href = props.get('url')
+        link_props['href'] = props.get('url')
 
     return DOM.create_element('a', link_props, props['children'])
 
@@ -73,31 +73,27 @@ class BR:
 def BlockFallback(props):
     type_ = props['block']['type']
 
-    if type_ == 'example-discard':
-        logging.warn('Missing config for "%s". Discarding block, keeping content.' % type_)
-        # Directly return the block's children to keep its content.
-        return props['children']
-    elif type_ == 'example-delete':
-        logging.error('Missing config for "%s". Deleting block.' % type_)
-        # Return None to not render anything, removing the whole block.
-        return None
-    else:
-        logging.warn('Missing config for "%s". Using div instead.' % type_)
-        # Provide a fallback.
-        return DOM.create_element('div', {}, props['children'])
+    logging.error('Missing config for "%s". Deleting block.' % type_)
+    # Return None to not render anything, removing the whole block.
+    return None
 
 
 def EntityFallback(props):
     type_ = props['entity']['type']
-    logging.warn('Missing config for "%s".' % type_)
-    return DOM.create_element('span', {'class': 'missing-entity'}, props['children'])
+    logging.warn('Missing config for "%s". Deleting entity' % type_)
+    return None
 
 
 config = {
     # Use the default draftjs_exporter block map.
-    'block_map': dict(BLOCK_MAP, **{}),
+    'block_map': dict(BLOCK_MAP, **{
+        BLOCK_TYPES.FALLBACK: BlockFallback,
+    }),
     # Use the default draftjs_exporter style map.
-    'style_map': dict(STYLE_MAP, **{}),
+    'style_map': dict(STYLE_MAP, **{
+        INLINE_STYLES.BOLD: 'b',
+        INLINE_STYLES.ITALIC: 'i',
+    }),
     'entity_decorators': {
         ENTITY_TYPES.IMAGE: Image,
         ENTITY_TYPES.LINK: Link,
@@ -117,8 +113,12 @@ config = {
 
 exporter = HTML(config)
 
-# Target: <p>Paragraph text <a id="1" linktype="document">internal link text</a>, <a href="http://example.com">external link text</a>, <a href="mailto:test@example.com">email link text</a></p><p>Paragraph text <b>bold</b>,\u00a0<i>italic</i>, <b><i>bold italic</i></b>, <i><b>italic bold</b></i></p><h2>Heading 2</h2><h3>Heading 3</h3><h4>Heading 4</h4><p><ol><li>Ordered list item 1<br/></li><li>Ordered list item 2</li><li>Ordered list item 3</li></ol><p><ul><li>Unordered list item 1</li><li>Unordered list item 2</li><li>Unordered list item 3</li></ul><p>Horizontal rule:</p></p></p><p><hr/><embed embedtype="media" url="https://www.youtube.com/watch?v=y8Kyi0WNg40"/><p>Unstyled text buggy after embed</p><p><br/></p><p>Paragraph <a id="1" linktype="document">document link</a></p><p><embed alt="Full width image" embedtype="image" format="fullwidth" id="49"/><br/></p></p><p><embed alt="Left-aligned image" embedtype="image" format="left" id="49"/></p><p>Text after left-aligned image, rendering on the right side in Hallo.js</p><p><br/></p><p><br/></p><p><br/></p><p><embed alt="Right-aligned image" embedtype="image" format="right" id="49"/>Text after a right-aligned image, rendering on the left side in Hallo.js</p><p><br/></p><p><br/></p><p><br/></p>
-content_state = {"entityMap":{"0":{"type":"LINK","mutability":"MUTABLE","data":{"editUrl":"/admin/pages/3/edit/","parentId":1,"url":"/","id":3,"linkType":"page"}},"1":{"type":"LINK","mutability":"MUTABLE","data":{"url":"http://example.com","prefer_this_title_as_link_text":False,"linkType":"external"}},"2":{"type":"LINK","mutability":"MUTABLE","data":{"url":"mailto:test@example.com","prefer_this_title_as_link_text":False,"linkType":"email"}},"3":{"type":"HORIZONTAL_RULE","mutability":"IMMUTABLE","data":{}},"4":{"type":"EMBED","mutability":"IMMUTABLE","data":{"embedType":"media","url":"https://www.youtube.com/watch?v=y8Kyi0WNg40","providerName":"YouTube","authorName":"magnets99","thumbnail":"https://i.ytimg.com/vi/y8Kyi0WNg40/hqdefault.jpg","title":"Dramatic Look"}},"5":{"type":"DOCUMENT","mutability":"MUTABLE","data":{"id":1,"title":"Test document","url":"/documents/1/unsplash.md","edit_link":"/admin/documents/edit/1/"}},"6":{"type":"IMAGE","mutability":"IMMUTABLE","data":{"id":1,"edit_link":"/admin/images/1/","title":"Test image","preview":{"url":"/media/images/nasa.max-165x165.jpg","width":165,"height":109},"src":"/media/images/nasa.max-165x165.jpg","alignment":"fullwidth","altText":"Full-width image"}},"7":{"type":"IMAGE","mutability":"IMMUTABLE","data":{"id":1,"edit_link":"/admin/images/1/","title":"Test image","preview":{"url":"/media/images/nasa.max-165x165.jpg","width":165,"height":109},"src":"/media/images/nasa.max-165x165.jpg","alignment":"left","altText":"Left-aligned image"}},"8":{"type":"IMAGE","mutability":"IMMUTABLE","data":{"id":1,"edit_link":"/admin/images/1/","title":"Test image","preview":{"url":"/media/images/nasa.max-165x165.jpg","width":165,"height":109},"src":"/media/images/nasa.max-165x165.jpg","alignment":"right","altText":"Right-aligned image"}}},"blocks":[{"key":"3b9ec","text":"Paragraph text internal link text, external link text, email link text","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[{"offset":15,"length":18,"key":0},{"offset":35,"length":18,"key":1},{"offset":55,"length":15,"key":2}],"data":{}},{"key":"agia4","text":"Paragraph text bold, italic, bold italic, italic bold","type":"unstyled","depth":0,"inlineStyleRanges":[{"offset":15,"length":4,"style":"BOLD"},{"offset":29,"length":11,"style":"BOLD"},{"offset":42,"length":11,"style":"BOLD"},{"offset":21,"length":6,"style":"ITALIC"},{"offset":29,"length":11,"style":"ITALIC"},{"offset":42,"length":11,"style":"ITALIC"}],"entityRanges":[],"data":{}},{"key":"3dgg4","text":"Heading 3","type":"header-three","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}},{"key":"ee4jr","text":"Heading 4","type":"header-four","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}},{"key":"68dlm","text":"Ordered list item 1","type":"ordered-list-item","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}},{"key":"8jkbd","text":"Ordered list item 2","type":"ordered-list-item","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}},{"key":"be3ks","text":"Ordered list item 3","type":"ordered-list-item","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}},{"key":"a97qk","text":"Unordered list item 1","type":"unordered-list-item","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}},{"key":"anslv","text":"Unordered list item 2","type":"unordered-list-item","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}},{"key":"1utrr","text":"Unordered list item 3","type":"unordered-list-item","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}},{"key":"3lpbj","text":"Horizontal rule:","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}},{"key":"3e3lm","text":" ","type":"atomic","depth":0,"inlineStyleRanges":[],"entityRanges":[{"offset":0,"length":1,"key":3}],"data":{}},{"key":"abhet","text":"Embed:","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}},{"key":"unf5","text":" ","type":"atomic","depth":0,"inlineStyleRanges":[],"entityRanges":[{"offset":0,"length":1,"key":4}],"data":{}},{"key":"cgcis","text":"Unstyled text after embed","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}},{"key":"cg5t4","text":"Paragraph document link","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[{"offset":10,"length":13,"key":5}],"data":{}},{"key":"eda0k","text":" ","type":"atomic","depth":0,"inlineStyleRanges":[],"entityRanges":[{"offset":0,"length":1,"key":6}],"data":{}},{"key":"dsnjc","text":"","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}},{"key":"bjefr","text":" ","type":"atomic","depth":0,"inlineStyleRanges":[],"entityRanges":[{"offset":0,"length":1,"key":7}],"data":{}},{"key":"22aql","text":"Text after left-aligned image, rendering underneath in Draft.js","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}},{"key":"1gh0q","text":" ","type":"atomic","depth":0,"inlineStyleRanges":[],"entityRanges":[{"offset":0,"length":1,"key":8}],"data":{}},{"key":"4tkgs","text":"Text after right-aligned image, rendering underneath in Draft.js","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}]}
+# Target: <p>Paragraph text <a id="3" linktype="page">internal link text</a>, <a href="http://example.com">external link text</a>, <a href="mailto:test@example.com">email link text</a></p><p>Paragraph text <b>bold</b>,\u00a0<i>italic</i>, <b><i>bold italic</i></b>, <i><b>italic bold</b></i></p><h2>Heading 2</h2><h3>Heading 3</h3><h4>Heading 4</h4><p><ol><li>Ordered list item 1<br/></li><li>Ordered list item 2</li><li>Ordered list item 3</li></ol><p><ul><li>Unordered list item 1</li><li>Unordered list item 2</li><li>Unordered list item 3</li></ul><p>Horizontal rule:</p></p></p><p><hr/><embed embedtype="media" url="https://www.youtube.com/watch?v=y8Kyi0WNg40"/><p>Unstyled text buggy after embed</p><p><br/></p><p>Paragraph <a id="1" linktype="document">document link</a></p><p><embed alt="Full width image" embedtype="image" format="fullwidth" id="49"/><br/></p></p><p><embed alt="Left-aligned image" embedtype="image" format="left" id="49"/></p><p>Text after left-aligned image, rendering on the right side in Hallo.js</p><p><br/></p><p><br/></p><p><br/></p><p><embed alt="Right-aligned image" embedtype="image" format="right" id="49"/>Text after a right-aligned image, rendering on the left side in Hallo.js</p><p><br/></p><p><br/></p><p><br/></p>
+# Target: <p>Paragraph text <a id="3" linktype="page">internal link text</a>, <a href="http://example.com">external link text</a>, <a href="mailto:test@example.com">email link text</a></p><p>Paragraph text <b>bold</b>, <i>italic</i>, <b><i>bold italic</i></b>, <b><i>italic bold</i></b></p><h2>Heading 2</h2><h3>Heading 3</h3><h4>Heading 4</h4><ol><li>Ordered list item 1</li><li>Ordered list item 2</li><li>Ordered list item 3</li></ol><ul><li>Unordered list item 1</li><li>Unordered list item 2</li><li>Unordered list item 3</li></ul><p>Horizontal rule:</p><hr/><p>Embed:</p><p>Unstyled text after embed</p><p>Paragraph <a id="1" linktype="document">document link</a></p><embed embedtype="image" format="right" id="1"/><p></p><embed embedtype="image" format="right" id="1"/><p>Text after left-aligned image, rendering underneath in Draft.js</p><embed embedtype="image" format="right" id="1"/><p>Text after right-aligned image, rendering underneath in Draft.js</p>
+content_state = {
+    "entityMap":{"0":{"type":"LINK","mutability":"MUTABLE","data":{"editUrl":"/admin/pages/3/edit/","parentId":1,"url":"/","id":3,"linkType":"page"}},"1":{"type":"LINK","mutability":"MUTABLE","data":{"url":"http://example.com","prefer_this_title_as_link_text":False,"linkType":"external"}},"2":{"type":"LINK","mutability":"MUTABLE","data":{"url":"mailto:test@example.com","prefer_this_title_as_link_text":False,"linkType":"email"}},"3":{"type":"HORIZONTAL_RULE","mutability":"IMMUTABLE","data":{}},"4":{"type":"EMBED","mutability":"IMMUTABLE","data":{"embedType":"media","url":"https://www.youtube.com/watch?v=y8Kyi0WNg40","providerName":"YouTube","authorName":"magnets99","thumbnail":"https://i.ytimg.com/vi/y8Kyi0WNg40/hqdefault.jpg","title":"Dramatic Look"}},"5":{"type":"DOCUMENT","mutability":"MUTABLE","data":{"id":1,"title":"Test document","url":"/documents/1/unsplash.md","edit_link":"/admin/documents/edit/1/"}},"6":{"type":"IMAGE","mutability":"IMMUTABLE","data":{"id":1,"edit_link":"/admin/images/1/","title":"Test image","preview":{"url":"/media/images/nasa.max-165x165.jpg","width":165,"height":109},"src":"/media/images/nasa.max-165x165.jpg","alignment":"fullwidth","altText":"Full-width image"}},"7":{"type":"IMAGE","mutability":"IMMUTABLE","data":{"id":1,"edit_link":"/admin/images/1/","title":"Test image","preview":{"url":"/media/images/nasa.max-165x165.jpg","width":165,"height":109},"src":"/media/images/nasa.max-165x165.jpg","alignment":"left","altText":"Left-aligned image"}},"8":{"type":"IMAGE","mutability":"IMMUTABLE","data":{"id":1,"edit_link":"/admin/images/1/","title":"Test image","preview":{"url":"/media/images/nasa.max-165x165.jpg","width":165,"height":109},"src":"/media/images/nasa.max-165x165.jpg","alignment":"right","altText":"Right-aligned image"}}},
+    "blocks":[{"key":"3b9ec","text":"Paragraph text internal link text, external link text, email link text","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[{"offset":15,"length":18,"key":0},{"offset":35,"length":18,"key":1},{"offset":55,"length":15,"key":2}],"data":{}},{"key":"agia4","text":"Paragraph text bold, italic, bold italic, italic bold","type":"unstyled","depth":0,"inlineStyleRanges":[{"offset":15,"length":4,"style":"BOLD"},{"offset":29,"length":11,"style":"BOLD"},{"offset":42,"length":11,"style":"BOLD"},{"offset":21,"length":6,"style":"ITALIC"},{"offset":29,"length":11,"style":"ITALIC"},{"offset":42,"length":11,"style":"ITALIC"}],"entityRanges":[],"data":{}},{"key":"3daa4","text":"Heading 2","type":"header-two","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}},{"key":"3dgg4","text":"Heading 3","type":"header-three","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}},{"key":"ee4jr","text":"Heading 4","type":"header-four","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}},{"key":"68dlm","text":"Ordered list item 1","type":"ordered-list-item","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}},{"key":"8jkbd","text":"Ordered list item 2","type":"ordered-list-item","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}},{"key":"be3ks","text":"Ordered list item 3","type":"ordered-list-item","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}},{"key":"a97qk","text":"Unordered list item 1","type":"unordered-list-item","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}},{"key":"anslv","text":"Unordered list item 2","type":"unordered-list-item","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}},{"key":"1utrr","text":"Unordered list item 3","type":"unordered-list-item","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}},{"key":"3lpbj","text":"Horizontal rule:","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}},{"key":"3e3lm","text":" ","type":"atomic","depth":0,"inlineStyleRanges":[],"entityRanges":[{"offset":0,"length":1,"key":3}],"data":{}},{"key":"abhet","text":"Embed:","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}},{"key":"unf5","text":" ","type":"atomic","depth":0,"inlineStyleRanges":[],"entityRanges":[{"offset":0,"length":1,"key":4}],"data":{}},{"key":"cgcis","text":"Unstyled text after embed","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}},{"key":"cg5t4","text":"Paragraph document link","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[{"offset":10,"length":13,"key":5}],"data":{}},{"key":"eda0k","text":" ","type":"atomic","depth":0,"inlineStyleRanges":[],"entityRanges":[{"offset":0,"length":1,"key":6}],"data":{}},{"key":"dsnjc","text":"","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}},{"key":"bjefr","text":" ","type":"atomic","depth":0,"inlineStyleRanges":[],"entityRanges":[{"offset":0,"length":1,"key":7}],"data":{}},{"key":"22aql","text":"Text after left-aligned image, rendering underneath in Draft.js","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}},{"key":"1gh0q","text":" ","type":"atomic","depth":0,"inlineStyleRanges":[],"entityRanges":[{"offset":0,"length":1,"key":8}],"data":{}},{"key":"4tkgs","text":"Text after right-aligned image, rendering underneath in Draft.js","type":"unstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}]
+}
 
 pr = cProfile.Profile()
 pr.enable()
