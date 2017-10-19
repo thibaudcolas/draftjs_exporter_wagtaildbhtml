@@ -4,7 +4,7 @@
 -----
 <p>
    Paragraph text
-   <a id="3" linktype="page">
+   <a id="1" linktype="page">
     internal link text
    </a>
    ,
@@ -73,9 +73,7 @@
    Horizontal rule:
   </p>
   <hr/>
-  <p>
-   Embed:
-  </p>
+  <embed embedtype="media" url="https://www.youtube.com/watch?v=y8Kyi0WNg40"/>
   <p>
    Unstyled text after embed
   </p>
@@ -85,14 +83,14 @@
     document link
    </a>
   </p>
-  <embed embedtype="image" format="right" id="1"/>
+  <embed alt="Full-width image" embedtype="image" format="fullwidth" id="1"/>
   <p>
   </p>
-  <embed embedtype="image" format="right" id="1"/>
+  <embed alt="Left-aligned image" embedtype="image" format="left" id="1"/>
   <p>
    Text after left-aligned image, rendering underneath in Draft.js
   </p>
-  <embed embedtype="image" format="right" id="1"/>
+  <embed alt="Right-aligned image" embedtype="image" format="right" id="1"/>
   <p>
    Text after right-aligned image, rendering underneath in Draft.js
   </p>
