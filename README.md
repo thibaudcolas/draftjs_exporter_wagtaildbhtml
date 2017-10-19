@@ -39,6 +39,7 @@ The reasons for those differences are:
 Hallo inserts `\u00a0` after a comma in some cases (no-break space).
 
 ```html
+<!-- DB-HTML from Hallo in Wagtail -->
 <b>bold</b>,\u00a0<i>italic</i>
 ```
 
@@ -48,9 +49,9 @@ Hallo inserts `\u00a0` after a comma in some cases (no-break space).
 - `draftjs_exporter` always wraps style tags in the same order (alphabetical) ([`style_state.py#L30`](https://github.com/springload/draftjs_exporter/blob/dcfa0491ce78783a20720ed5b557166154a57259/draftjs_exporter/style_state.py#L30))
 
 ```html
-<!-- Hallo, when activating italic, then bold -->
+<!-- DB-HTML of Wagtail with Hallo -->
 <i><b>italic bold</b></i>
-<!-- Draftail, regardless of activation order -->
+<!-- DB-HTML of draftjs_exporter with Draftail, regardless of activation order -->
 <b><i>italic bold</i></b>
 ```
 
@@ -60,25 +61,49 @@ Hallo inserts `\u00a0` after a comma in some cases (no-break space).
 - `draftjs_exporter` only outputs `p` tags for individual blocks of type `UNSTYLED` (the editor's default format).
 
 ```html
-<!-- Hallo -->
+<!-- DB-HTML of Wagtail with Hallo -->
 <p>
-    <ul><li>Unordered list item 1</li><li>Unordered list item 2</li><li>Unordered list item 3</li></ul>
+    <ul><li>Unordered list item 1</li></ul>
     <p>Horizontal rule:</p>
 </p>
-<!-- Draft.js -->
-<ul><li>Unordered list item 1</li><li>Unordered list item 2</li><li>Unordered list item 3</li></ul>
+<!-- DB-HTML of draftjs_exporter with Draftail -->
+<ul><li>Unordered list item 1</li></ul>
 <p>Horizontal rule:</p>
+
+<!-- DB-HTML of Wagtail with Hallo -->
+<p>
+    <hr/>
+    <embed embedtype="media" url="https://www.youtube.com/watch?v=y8Kyi0WNg40"/>
+</p>
+<!-- DB-HTML of draftjs_exporter with Draftail -->
+<hr/>
+<embed embedtype="media" url="https://www.youtube.com/watch?v=y8Kyi0WNg40"/>
 ```
 
-### `br` insertions
+### Line breaks
 
-To confirm – behaviour may be different
+- Hallo's behavior has yet to be defined.
+- Draftail always inserts empty blocks for empty lines, and line breaks when using the "soft line break" control / keyboard shortcut.
 
 ```html
-<!-- Hallo -->
+<!-- DB-HTML of Wagtail with Hallo -->
 <ol><li>Ordered list item 1<br/></li></ol>
-<!-- Draft.js -->
+<!-- DB-HTML of draftjs_exporter with Draftail -->
 <ol><li>Ordered list item 1</li></ol>
+
+<!-- DB-HTML of Wagtail with Hallo -->
+<p><br/></p>
+<!-- DB-HTML of draftjs_exporter with Draftail -->
+<p></p>
+
+<!-- DB-HTML of Wagtail with Hallo -->
+<p>
+    <embed alt="Full width image" embedtype="image" format="fullwidth" id="1"/>
+    <br/>
+</p>
+<!-- DB-HTML of draftjs_exporter with Draftail -->
+<embed alt="Full-width image" embedtype="image" format="fullwidth" id="1"/>
+<p></p>
 ```
 
 ### To test further
