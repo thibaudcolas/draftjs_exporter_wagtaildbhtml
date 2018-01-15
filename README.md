@@ -1,4 +1,4 @@
-# draftjs_exporter_wagtaildbhtml 🐍
+# draftjs_exporter_wagtaildbhtml 🐍 [![Build Status](https://travis-ci.org/thibaudcolas/draftjs_exporter_wagtaildbhtml.svg?branch=master)](https://travis-ci.org/thibaudcolas/draftjs_exporter_wagtaildbhtml)
 
 > Convert the Facebook Draft.js editor’s raw ContentState to Wagtail's DB-HTML.
 
@@ -29,10 +29,10 @@ There are a number of differences between the DB-HTML coming from Wagtail 1's ri
 
 The reasons for those differences are:
 
-- Wagtail 1's DB-HTML comes from Hallo, which doesn't provide much control over its HTML output.
-- Working on arbitrary HTML from the editor, Wagtail's DB-HTML pipeline doesn't normalise ambiguous representations.
-- In contrast, `draftjs_exporter` operates on a more constrained format with less potential for ambiguities.
-- `drafjs_exporter` also further constraints its output to normalise potentially ambiguous representations.
+* Wagtail 1's DB-HTML comes from Hallo, which doesn't provide much control over its HTML output.
+* Working on arbitrary HTML from the editor, Wagtail's DB-HTML pipeline doesn't normalise ambiguous representations.
+* In contrast, `draftjs_exporter` operates on a more constrained format with less potential for ambiguities.
+* `drafjs_exporter` also further constraints its output to normalise potentially ambiguous representations.
 
 ### Spacing unicode character
 
@@ -45,8 +45,8 @@ Hallo inserts `\u00a0` after a comma in some cases (no-break space).
 
 ### Order of tags for multiple styles
 
-- Hallo wraps style tags in the order they are used in the editor
-- `draftjs_exporter` always wraps style tags in the same order (alphabetical) ([`style_state.py#L30`](https://github.com/springload/draftjs_exporter/blob/dcfa0491ce78783a20720ed5b557166154a57259/draftjs_exporter/style_state.py#L30))
+* Hallo wraps style tags in the order they are used in the editor
+* `draftjs_exporter` always wraps style tags in the same order (alphabetical) ([`style_state.py#L30`](https://github.com/springload/draftjs_exporter/blob/dcfa0491ce78783a20720ed5b557166154a57259/draftjs_exporter/style_state.py#L30))
 
 ```html
 <!-- DB-HTML of Wagtail with Hallo -->
@@ -57,8 +57,8 @@ Hallo inserts `\u00a0` after a comma in some cases (no-break space).
 
 ### Wrapping in `p` tags
 
-- Hallo frequently wraps content within `p` tags.
-- `draftjs_exporter` only outputs `p` tags for individual blocks of type `UNSTYLED` (the editor's default format).
+* Hallo frequently wraps content within `p` tags.
+* `draftjs_exporter` only outputs `p` tags for individual blocks of type `UNSTYLED` (the editor's default format).
 
 ```html
 <!-- DB-HTML of Wagtail with Hallo -->
@@ -82,8 +82,8 @@ Hallo inserts `\u00a0` after a comma in some cases (no-break space).
 
 ### Line breaks
 
-- Hallo's behavior has yet to be defined.
-- Draftail always inserts empty blocks for empty lines, and line breaks when using the "soft line break" control / keyboard shortcut.
+* Hallo's behavior has yet to be defined.
+* Draftail always inserts empty blocks for empty lines, and line breaks when using the "soft line break" control / keyboard shortcut.
 
 ```html
 <!-- DB-HTML of Wagtail with Hallo -->
@@ -148,5 +148,5 @@ make publish         # Publishes a new version to pypi.
 
 ## Debugging
 
-- Always run the tests. `npm install -g nodemon`, then `make test-watch`.
-- Use a debugger. `pip install ipdb`, then `import ipdb; ipdb.set_trace()`.
+* Always run the tests. `npm install -g nodemon`, then `make test-watch`.
+* Use a debugger. `pip install ipdb`, then `import ipdb; ipdb.set_trace()`.
