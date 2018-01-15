@@ -17,7 +17,7 @@ from draftjs_exporter.dom import DOM
 from draftjs_exporter.html import HTML
 
 
-def Image(props):
+def image(props):
     """
     <embed alt="Right-aligned image" embedtype="image" format="right" id="1"/>
     """
@@ -29,7 +29,7 @@ def Image(props):
     })
 
 
-def Embed(props):
+def embed(props):
     """
     <embed embedtype="media" url="https://www.youtube.com/watch?v=y8Kyi0WNg40"/>
     """
@@ -39,7 +39,7 @@ def Embed(props):
     })
 
 
-def Document(props):
+def document(props):
     """
     <a id="1" linktype="document">document link</a>
     """
@@ -50,7 +50,7 @@ def Document(props):
     }, props['children'])
 
 
-def Link(props):
+def link(props):
     """
     <a linktype="page" id="1">internal page link</a>
     """
@@ -66,27 +66,24 @@ def Link(props):
     return DOM.create_element('a', link_props, props['children'])
 
 
-class BR:
+def BR(self, props):
     """
     Replace line breaks (\n) with br tags.
     """
-    SEARCH_RE = re.compile(r'\n')
+    # Do not process matches inside code blocks.
+    if props['block']['type'] == BLOCK_TYPES.CODE:
+        return props['children']
 
-    def render(self, props):
-        # Do not process matches inside code blocks.
-        if props['block']['type'] == BLOCK_TYPES.CODE:
-            return props['children']
-
-        return DOM.create_element('br')
+    return DOM.create_element('br')
 
 
-def BlockFallback(props):
+def block_fallback(props):
     type_ = props['block']['type']
     logging.error('Missing config for "%s". Deleting block.' % type_)
     return None
 
 
-def EntityFallback(props):
+def entity_fallback(props):
     type_ = props['entity']['type']
     logging.warn('Missing config for "%s". Deleting entity' % type_)
     return None
@@ -95,7 +92,7 @@ def EntityFallback(props):
 config = {
     # Use the default draftjs_exporter block map.
     'block_map': dict(BLOCK_MAP, **{
-        BLOCK_TYPES.FALLBACK: BlockFallback,
+        BLOCK_TYPES.FALLBACK: block_fallback,
     }),
     # Use the default draftjs_exporter style map.
     'style_map': dict(STYLE_MAP, **{
@@ -103,17 +100,20 @@ config = {
         INLINE_STYLES.ITALIC: 'i',
     }),
     'entity_decorators': {
-        ENTITY_TYPES.IMAGE: Image,
-        ENTITY_TYPES.LINK: Link,
-        ENTITY_TYPES.DOCUMENT: Document,
+        ENTITY_TYPES.IMAGE: image,
+        ENTITY_TYPES.LINK: link,
+        ENTITY_TYPES.DOCUMENT: document,
         ENTITY_TYPES.HORIZONTAL_RULE: lambda props: DOM.create_element('hr'),
-        ENTITY_TYPES.EMBED: Embed,
-        ENTITY_TYPES.FALLBACK: EntityFallback,
+        ENTITY_TYPES.EMBED: embed,
+        ENTITY_TYPES.FALLBACK: entity_fallback,
     },
     'composite_decorators': [
-        BR,
+        {
+            'component': BR,
+            'strategy': re.compile(r'\n')
+        }
     ],
-    'engine': 'html5lib',
+    'engine': DOM.STRING,
 }
 
 exporter = HTML(config)
@@ -162,7 +162,7 @@ with codecs.open('example.html', 'w', 'utf-8') as file:
 <html>
 <head>
 <meta charset="utf-8" />
-<title>draftjs_exporter test page</title>
+<title>draftjs_exporter_wagtaildbhtml test page</title>
 <style>{styles}</style>
 </head>
 <body>
