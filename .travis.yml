@@ -6,7 +6,8 @@ install:
 - make init
 script:
 - python example.py
-- mv example.html index.html
+- mkdir build
+- mv example.html build/index.html
 branches:
   except:
   - gh-pages
