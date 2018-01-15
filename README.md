@@ -1,4 +1,4 @@
-# draftjs_exporter_wagtaildbhtml 🐍 [![Build Status](https://travis-ci.org/thibaudcolas/draftjs_exporter_wagtaildbhtml.svg?branch=master)](https://travis-ci.org/thibaudcolas/draftjs_exporter_wagtaildbhtml)
+# [draftjs_exporter_wagtaildbhtml](https://thibaudcolas.github.io/draftjs_exporter_wagtaildbhtml/) 🐍 [![Build Status](https://travis-ci.org/thibaudcolas/draftjs_exporter_wagtaildbhtml.svg?branch=master)](https://travis-ci.org/thibaudcolas/draftjs_exporter_wagtaildbhtml)
 
 > Convert the Facebook Draft.js editor’s raw ContentState to Wagtail's DB-HTML.
 
